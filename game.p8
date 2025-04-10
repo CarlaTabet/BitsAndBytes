@@ -2,32 +2,59 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
+rooms = {
+    graveyard = {x=0,y=0,w=36,h=36},
+    room1 = {x=0,y=39,w=36,h=25}
+}
+
+exits = {
+    {
+        room = "graveyard", 
+        dest="room1", 
+        px=40, 
+        py=312,
+        condition = function()
+            return player.x >= 160 and player.x <= 178 and player.y==277
+        end
+    }
+}
+
 function _init()
+    current_room = "graveyard"
+
     player = {
         x = 16,
         y = 16,
         sp = 9,
-        speed = 1
+        speed = 3
     }
 
 end
 
-
 function _update()
     player_update()
+    room_change()
 end
 
 function _draw()
     cls()
-
-    cam_x = mid(0, player.x - 64, 36*8 - 128)
-    cam_y = mid(0, player.y - 64, 36*8 - 128)
+    local room = rooms[current_room]
+    local room_left = room.x * 8
+    local room_right = (room.x + room.w) * 8
+    local room_top = room.y * 8
+    local room_bottom = (room.y + room.h) * 8
+    cam_x = mid(room_left, player.x - 64, room_right - 128)
+    cam_y = mid(room_top, player.y - 64, room_bottom - 128)
     camera(cam_x, cam_y)
+ 
 
-    map(0, 0, 0, 0, 36, 36)
+    --map(room.x, room.y, 0, 0, room.w, room.h)
+    map(0,0,0,0,128,64)
     spr(player.sp, player.x, player.y)
     draw_mist()
     draw_darkness()
+    
+    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 0, 7)
     
 end
 
@@ -52,8 +79,16 @@ function player_update()
     end
 end
 
-
-
+function room_change()
+    for exit in all(exits) do 
+        if exit.room == current_room and exit.condition() then
+            current_room = exit.dest
+            player.x = exit.px
+            player.y = exit.py
+            return
+        end 
+    end
+end
 
 
 function draw_darkness()
