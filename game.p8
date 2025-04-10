@@ -2,11 +2,73 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
-player = {
-    x = 16,
-    y = 16,
-    spd = 9
-}
+function _init()
+    player = {
+        x = 16,
+        y = 16,
+        sp = 9,
+        speed = 1
+    }
+
+end
+
+
+function _update()
+    player_update()
+end
+
+function _draw()
+    cls()
+
+    cam_x = mid(0, player.x - 64, 36*8 - 128)
+    cam_y = mid(0, player.y - 64, 36*8 - 128)
+    camera(cam_x, cam_y)
+
+    map(0, 0, 0, 0, 36, 36)
+    spr(player.sp, player.x, player.y)
+    draw_mist()
+    draw_darkness()
+    
+end
+
+function player_update()
+    local dx = 0
+    local dy = 0
+
+    if btn(0) then dx = -1 end
+    if btn(1) then dx = 1 end
+    if btn(2) then dy = -1 end
+    if btn(3) then dy = 1 end
+
+    local new_x = player.x + dx * player.speed
+    local new_y = player.y + dy * player.speed
+
+    local tx = flr(new_x / 8)
+    local ty = flr(new_y / 8)
+
+    if not is_solid(tx, ty) then
+        player.x = new_x
+        player.y = new_y
+    end
+end
+
+
+
+
+
+function draw_darkness()
+    camera()
+    local px = player.x - cam_x
+    local py = player.y - cam_y
+
+    for y=0,127 do
+        for x=0,127 do
+            if ((x - px)^2 + (y - py)^2) > 30*30 then
+                pset(x, y, -16) 
+            end
+        end
+    end
+end
 
 function is_solid(tx, ty)
     local tile = mget(tx, ty)
@@ -23,62 +85,6 @@ function draw_mist()
 end
 
 
-function _init()
-  
-end
-
-
-
-
-function _update()
-    local dx = 0
-    local dy = 0
-
-    if btn(0) then dx = -1 end
-    if btn(1) then dx = 1 end
-    if btn(2) then dy = -1 end
-    if btn(3) then dy = 1 end
-
-    local new_x = player.x + dx
-    local new_y = player.y + dy
-
-    local tx = flr(new_x / 8)
-    local ty = flr(new_y / 8)
-
-    if not is_solid(tx, ty) then
-        player.x = new_x
-        player.y = new_y
-    end
-end
-
-function draw_darkness()
-    camera()
-    local px = player.x - cam_x
-    local py = player.y - cam_y
-
-    for y=0,127 do
-        for x=0,127 do
-            if ((x - px)^2 + (y - py)^2) > 30*30 then
-                pset(x, y, -16) 
-            end
-        end
-    end
-end
-
-function _draw()
-    cls()
-
-    cam_x = mid(0, player.x - 64, 36*8 - 128)
-    cam_y = mid(0, player.y - 64, 36*8 - 128)
-    camera(cam_x, cam_y)
-
-    map(0, 0, 0, 0, 36, 36)
-    spr(9, player.x, player.y)
-    draw_mist()
-    draw_darkness()
-    
-
-end
 __gfx__
 445555443355553333333333661666161616111666666666661111116666666611111166999999993333333333bbbbb300000000000000000000000000000000
 456666545556655533333333611161116666666661161616611111116161611611111116999999993b33333b3333333300000000000000000000000000000000
