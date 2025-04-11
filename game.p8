@@ -56,18 +56,16 @@ function _draw()
 
     map(0,0,0,0,128,64)
     spr(player.sp, player.x, player.y)
+
     if current_room == "graveyard" then
         draw_mist()
         draw_darkness()
     end
-    
-    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 0, 7)
-    
-end
 
-camera() -- reset camera for HUD
-spr(60, 1, 1)           -- blood drop sprite
-print(blood, 10, 2, 8)  -- blood count in white
+    camera()
+    spr(60, 1, 1)
+    print(blood, 10, 2, 8)    
+end
 
 
 function player_update()
@@ -130,6 +128,16 @@ function draw_mist()
      pset(mx, my, 5) 
    end
 end
+
+
+function player_hit_enemy()
+    blood = max(0, blood - 1)
+end
+
+function player_collect_blood()
+    blood = min(20, blood + 1)
+end
+
 
 
 __gfx__
