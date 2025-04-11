@@ -49,16 +49,14 @@ function _init()
 
     blood = 10
 
-    spawn_blood_drop(100, 100)
+    spawn_blood_drop(40, 16)
 end
 
 function _update()
     player_update()
     room_change()
     for drop in all(blood_drops) do
-    -- Animate float
     drop.float_offset = sin(time() + drop.x) * 2
-    -- Check for player overlap
     if not drop.collected and abs(player.x - drop.x) < 8 and abs(player.y - drop.y) < 8 then
         drop.collected = true
         player_collect_blood()
@@ -81,12 +79,6 @@ function _draw()
 
     map(0,0,0,0,128,64)
     spr(player.sp, player.x, player.y)
-
-    camera()
-    spr(60, 1, 1)
-    print(blood, 10, 2, 8)
-
-    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 110, 7)
     
     -- draw blood drops
     for drop in all(blood_drops) do
@@ -101,6 +93,13 @@ function _draw()
         draw_mist()
         draw_darkness()
     end
+
+    camera()
+    spr(60, 1, 1)
+    print(blood, 10, 2, 8)
+
+    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 110, 7)
+
 end
 
 
