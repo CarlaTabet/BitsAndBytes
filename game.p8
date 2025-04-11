@@ -23,6 +23,20 @@ exits = {
     }
 }
 
+blood_drops = {}
+
+function spawn_blood_drop(x, y)
+    add(blood_drops, {
+        x = x,
+        y = y,
+        base_y = y,    -- original position
+        float_offset = 0,
+        float_speed = 0.05,
+        collected = false
+    })
+end
+
+
 function _init()
     current_room = "graveyard"
 
@@ -35,11 +49,22 @@ function _init()
 
     blood = 10
 
+    spawn_blood_drop(80, 80)
 end
 
 function _update()
     player_update()
     room_change()
+    for drop in all(blood_drops) do
+    -- Animate float
+    drop.float_offset = sin(time() + drop.x) * 2
+    -- Check for player overlap
+    if not drop.collected and abs(player.x - drop.x) < 8 and abs(player.y - drop.y) < 8 then
+        drop.collected = true
+        player_collect_blood()
+    end
+end
+
 end
 
 function _draw()
@@ -64,7 +89,17 @@ function _draw()
 
     camera()
     spr(60, 1, 1)
-    print(blood, 10, 2, 8)    
+    print(blood, 10, 2, 8)
+
+    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 110, 7)
+    
+    for drop in all(blood_drops) do
+        if not drop.collected then
+            local draw_x = drop.x
+            local draw_y = drop.base_y + drop.float_offset
+            spr(60, draw_x, draw_y)
+        end
+    end
 end
 
 
