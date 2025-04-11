@@ -52,7 +52,7 @@ function _init()
     spawn_blood_drop(25, 58)
 
     time_elapsed = 0
-    max_time = 60 * 60 -- 60 seconds at 60fps
+    max_time = 600 * 60 -- 60 seconds at 60fps
 
 end
 
@@ -181,8 +181,8 @@ function player_collect_blood()
 end
 
 function draw_time_bar()
-    local bar_x = 70
-    local bar_y = 4
+    local bar_x = 85
+    local bar_y = 2
     local bar_w = 35
     local bar_h = 5
 
@@ -194,7 +194,7 @@ function draw_time_bar()
     rectfill(bar_x + 1, bar_y + 1, bar_x + bar_w - 1, bar_y + bar_h - 1, 0)
 
     local t = time_elapsed / max_time
-    local fill_w = flr((bar_w - 2) * t)
+    local fill_w = flr((bar_w - 2) * (1 - t))
     rectfill(bar_x + 1, bar_y + 1, bar_x + 1 + fill_w, bar_y + bar_h - 1, 8)
 end
 
