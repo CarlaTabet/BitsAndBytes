@@ -52,7 +52,7 @@ function _init()
     spawn_blood_drop(25, 58)
 
     time_elapsed = 0
-    max_time = 600 * 60 -- 600 seconds at 60fps
+    max_time = 60 * 60 -- 60 seconds at 60fps
 
 end
 
@@ -181,14 +181,14 @@ function player_collect_blood()
 end
 
 function draw_time_bar()
-    local bar_x = 90
+    local bar_x = 70
     local bar_y = 4
     local bar_w = 35
     local bar_h = 5
 
     -- moon and sun icons
-    spr(62, bar_x - 8, bar_y - 1)
-    spr(61, bar_x + bar_w + 1, bar_y - 1)
+    spr(61, bar_x - 8, bar_y - 1)
+    spr(62, bar_x + bar_w + 1, bar_y - 1)
 
     rect(bar_x, bar_y, bar_x + bar_w, bar_y + bar_h, 1)
     rectfill(bar_x + 1, bar_y + 1, bar_x + bar_w - 1, bar_y + bar_h - 1, 0)
