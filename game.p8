@@ -49,7 +49,7 @@ function _init()
 
     blood = 10
 
-    spawn_blood_drop(80, 80)
+    spawn_blood_drop(100, 100)
 end
 
 function _update()
@@ -82,23 +82,24 @@ function _draw()
     map(0,0,0,0,128,64)
     spr(player.sp, player.x, player.y)
 
-    if current_room == "graveyard" then
-        draw_mist()
-        draw_darkness()
-    end
-
     camera()
     spr(60, 1, 1)
     print(blood, 10, 2, 8)
 
     print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 110, 7)
     
+    -- draw blood drops
     for drop in all(blood_drops) do
         if not drop.collected then
-            local draw_x = drop.x
-            local draw_y = drop.base_y + drop.float_offset
+            local draw_x = drop.x - cam_x
+            local draw_y = drop.base_y + drop.float_offset - cam_y
             spr(60, draw_x, draw_y)
         end
+    end
+
+    if current_room == "graveyard" then
+        draw_mist()
+        draw_darkness()
     end
 end
 
