@@ -3,12 +3,16 @@ version 42
 __lua__
 
 rooms = {
+    --Name of room, x,y is top right corner and w,h is how big it is
     graveyard = {x=0,y=0,w=36,h=36},
     room1 = {x=0,y=39,w=36,h=25}
 }
 
 exits = {
     {
+        --Gives current room, destination when leaving room, 
+        --px,py is where the player ends up
+        --condition function is where the player needs to be in order to exit
         room = "graveyard", 
         dest="room1", 
         px=40, 
@@ -48,7 +52,6 @@ function _draw()
     camera(cam_x, cam_y)
  
 
-    --map(room.x, room.y, 0, 0, room.w, room.h)
     map(0,0,0,0,128,64)
     spr(player.sp, player.x, player.y)
     if current_room == "graveyard" then
