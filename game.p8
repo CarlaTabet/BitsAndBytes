@@ -78,47 +78,65 @@ function _init()
     max_time = 600 * 60 -- 60 seconds at 60fps
 end
 
+symbols = {40, 41, 42, 43, 44}
 
-puzzle_question = "what blooms in darkness?"
-puzzle_options = {"a) sunflower", "b) moonflower", "c) fire"}
-correct_option = 2
-selected_option = 1
 function update_puzzle()
-    if btnp(2) then -- up
-        selected_option = max(1, selected_option - 1)
+    if btnp(0) then -- left
+        selected_dial = max(1, selected_dial - 1)
+    elseif btnp(1) then -- right
+        selected_dial = min(3, selected_dial + 1)
+    elseif btnp(2) then -- up
+        current_combo[selected_dial] = (current_combo[selected_dial] - 2) % #symbols + 1
     elseif btnp(3) then -- down
-        selected_option = min(#puzzle_options, selected_option + 1)
-    elseif btnp(4) or btnp(5) then -- z or x
-        if selected_option == correct_option then
+        current_combo[selected_dial] = current_combo[selected_dial] % #symbols + 1
+    elseif btnp(4) or btnp(5) then -- z or x to submit
+        if current_combo[1] == correct_combo[1] and
+           current_combo[2] == correct_combo[2] and
+           current_combo[3] == correct_combo[3] then
             puzzle_solved = true
             puzzle_active = false
         else
-            -- wrong answer; maybe play a sound or flash red
+            -- maybe play a wrong sound
         end
     end
 end
 
+
+
 function draw_puzzle()
-    rectfill(10, 30, 118, 100, 0)
-    rect(10, 30, 118, 100, 7)
-    print(puzzle_question, 14, 36, 7)
-    for i, opt in pairs(puzzle_options) do
-        local y = 46 + (i - 1) * 10
-        local color = (i == selected_option) and 11 or 6
-        print(opt, 18, y, color)
+    rectfill(10, 40, 118, 90, 0) -- background
+    rect(10, 40, 118, 90, 7)
+    print("align the ancient symbols", 18, 45, 6)
+
+    for i=1,3 do
+        local sprite_id = symbols[current_combo[i]]
+        local x = 30 + (i - 1) * 28
+        local y = 64
+        local col = (i == selected_dial) and 11 or 6
+        rect(x - 6, y - 6, x + 10, y + 10, col)
+        spr(sprite_id, x, y)
     end
+
 end
 
 
+
 function _update()
-    player_update()
-    room_change()
-    if not puzzle_active then
-    	player_update()
-    	room_change()
-    else
-    	update_puzzle()
-				end
+			if puzzle_active then
+			  if show_riddle then
+			  		if btnp(4) or btnp(5) then
+			     	show_riddle = false
+			   	end
+			  else
+			    update_puzzle()
+			  end
+		 else
+			  player_update()
+			  room_change()
+			end
+			if puzzle_active and not show_riddle then
+    update_puzzle()
+			end
     
     time_elapsed = min(time_elapsed + 1, max_time)
     for drop in all(blood_drops) do
@@ -135,6 +153,15 @@ function _update()
 			    player_collect_flower()
 					end
 				end
+
+end
+
+function draw_riddle()
+    rectfill(8, 96, 120, 120, 0)
+    rect(8, 96, 120, 120, 7)
+    print("the eye that sees", 14, 100, 6)
+    print("the claw that strikes", 14, 108, 6)
+    print("the flame that guides", 14, 116, 6)
 end
 
 
@@ -167,6 +194,9 @@ function _draw()
         draw_darkness()
          if puzzle_active then
 					    	draw_puzzle()
+									end
+									if show_riddle then
+							    draw_riddle()
 									end
 
     end
@@ -221,9 +251,14 @@ function room_change()
     for exit in all(exits) do 
         if exit.room == current_room and exit.condition() then
             if not puzzle_solved then
-                puzzle_active = true
-                return
-            end
+										    puzzle_active = true
+										    selected_dial = 1
+										    symbols = {40,41,42,43,44}
+										    correct_combo = {1, 2, 3}
+										    current_combo = {1, 1, 1}
+										    show_riddle = true
+										    return
+												end
             current_room = exit.dest
             player.x = exit.px
             player.y = exit.py
@@ -313,14 +348,14 @@ __gfx__
 4444444465555555b3b3b33b3333b333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb61161161611611611616116100000000cccccccc222222220000000000000000
 4444444455555556333b33333333bb33bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb61161161611611611616116100000000cccccccc222222220000000000000000
 4444444456555655b3b33b3b333bb333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb61161161611611611616116100000000cccccccc222222220000000000000000
-33330000000033330000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-33005555555500330000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-30666666666555030000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-06666666666655500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-06666666666665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-06655665655665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-06656566656565500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
-0665566565566550000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000000000000000000000000000000000000000000000000
+33330000000033330000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000800800000080000006600070000007000000000000000000000000
+33005555555500330000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0077770000700700000888000066760077000077000000000000000000000000
+30666666666555030000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0708807080000008008898800067760070777707000000000000000000000000
+06666666666655500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7008800770077007088999800667776070600607000000000000000000000000
+06666666666665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb07088070007777000899a9806677776007000880000000000000000000000000
+06655665655665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0077770000777700089aaa906777776000777780000000000000000000000000
+06656566656565500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000777700009aaa900777766000000080000000000000000000000000
+0665566565566550000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000000aaa000077760000000080000000000000000000000000
 06656565656665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb00000000000000000088800044488844000800000a0990a00006660000000000
 06656565656665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000000088988004488988400080000a09aa90a0067776000000000
 06666666666665500000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb000000000000000008999800448999840084800009aa9a900677600000000000
