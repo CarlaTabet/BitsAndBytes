@@ -132,14 +132,6 @@ function _draw()
             spr(60, draw_x, draw_y)
         end
     end
-    
-    for f in all(flowers) do
-    	if not f.collected then
-        local fx = f.x - cam_x
-        local fy = f.y - cam_y
-        spr(59, fx, fy)
-    	end
-				end
 
     if current_room == "graveyard" then
         draw_mist()
