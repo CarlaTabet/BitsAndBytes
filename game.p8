@@ -75,7 +75,7 @@ function _init()
     spawn_blood_drop(25, 58)
 				load_flowers_from_map()
     time_elapsed = 0
-    max_time = 600 * 60 -- 60 seconds at 60fps
+    max_time = 60 * 60
 end
 
 symbols = {40, 41, 42, 43, 44}
@@ -306,13 +306,21 @@ function draw_time_bar()
     spr(61, bar_x - 8, bar_y - 1)
     spr(62, bar_x + bar_w + 1, bar_y - 1)
 
+    -- draw outline
     rect(bar_x, bar_y, bar_x + bar_w, bar_y + bar_h, 1)
+
+    -- fill black background
     rectfill(bar_x + 1, bar_y + 1, bar_x + bar_w - 1, bar_y + bar_h - 1, 0)
 
+    -- calculate shrinking red fill from right to left
     local t = time_elapsed / max_time
     local fill_w = flr((bar_w - 2) * (1 - t))
-    rectfill(bar_x + 1, bar_y + 1, bar_x + 1 + fill_w, bar_y + bar_h - 1, 8)
+
+    -- draw red bar starting from the moon side
+    local bar_right = bar_x + bar_w - 1
+    rectfill(bar_right - fill_w + 1, bar_y + 1, bar_right, bar_y + bar_h - 1, 8)
 end
+
 
 
 
