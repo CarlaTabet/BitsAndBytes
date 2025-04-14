@@ -104,17 +104,19 @@ end
 
 
 function draw_puzzle()
-    rectfill(10, 40, 118, 90, 0) -- background
+    rectfill(10, 40, 118, 90, 0)
     rect(10, 40, 118, 90, 7)
     print("align the ancient symbols", 18, 45, 6)
-
     for i=1,3 do
         local sprite_id = symbols[current_combo[i]]
         local x = 30 + (i - 1) * 28
         local y = 64
         local col = (i == selected_dial) and 11 or 6
         rect(x - 6, y - 6, x + 10, y + 10, col)
-        spr(sprite_id, x, y)
+        spr(sprite_id, x-1, y-1)
+    end
+    if (time() % 1) < 0.5 then
+        print("press z to enter", 34, 84, 5)
     end
 
 end
@@ -148,8 +150,8 @@ function _update()
 end
 
 function draw_riddle()
-    rectfill(8, 96, 120, 120, 0)
-    rect(8, 96, 120, 120, 7)
+    rectfill(8, 96, 120, 124, 0)
+    rect(8, 96, 120, 124, 7)
     print("the eye that sees", 14, 100, 6)
     print("the claw that strikes", 14, 108, 6)
     print("the flame that guides", 14, 116, 6)
