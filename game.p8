@@ -123,19 +123,10 @@ end
 
 function _update()
 			if puzzle_active then
-			  if show_riddle then
-			  		if btnp(4) or btnp(5) then
-			     	show_riddle = false
-			   	end
-			  else
-			    update_puzzle()
-			  end
-		 else
-			  player_update()
-			  room_change()
-			end
-			if puzzle_active and not show_riddle then
     update_puzzle()
+			else
+			    player_update()
+			    room_change()
 			end
     
     time_elapsed = min(time_elapsed + 1, max_time)
@@ -192,13 +183,10 @@ function _draw()
     if current_room == "graveyard" then
         draw_mist()
         draw_darkness()
-         if puzzle_active then
+        if puzzle_active then
 					    	draw_puzzle()
-									end
-									if show_riddle then
-							    draw_riddle()
-									end
-
+							   draw_riddle()
+								end
     end
 
     camera()
@@ -208,9 +196,6 @@ function _draw()
     print(flower, 10, 10, 8)
 
     draw_time_bar()
-
-    print("x="..player.x.." y="..player.y.." tile: "..flr(player.x/8)..","..flr(player.y/8), 0, 110, 7)
-
 end
 
 
@@ -256,7 +241,6 @@ function room_change()
 										    symbols = {40,41,42,43,44}
 										    correct_combo = {1, 2, 3}
 										    current_combo = {1, 1, 1}
-										    show_riddle = true
 										    return
 												end
             current_room = exit.dest
