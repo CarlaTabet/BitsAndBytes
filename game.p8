@@ -42,6 +42,15 @@ exits = {
         condition = function()
             return player.x == 49 and player.y == 25
         end
+    },
+    {
+        room = "room2",
+        dest = "room1",
+        px = 247,
+        py = 380,
+        condition = function()
+            return player.x >= 325 and player.x <= 338 and player.y >= 48 and player.y <= 52
+        end
     }
 }
 
@@ -235,6 +244,7 @@ function update_doors()
     for door in all(doors) do 
         if door_transition and pause_timer <= 0  and active_door then
             player.x -= 12
+            player.speed = 3
             active_door.state = "closed"
             active_door = nil
             door_transition = false
