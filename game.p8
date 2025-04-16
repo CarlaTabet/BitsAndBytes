@@ -140,23 +140,65 @@ function update_nurse()
     end
 end
 
+function draw_triangle(x1, y1, x2, y2, x3, y3, col)
+    -- sort points by y
+    if y1 > y2 then x1,y1,x2,y2 = x2,y2,x1,y1 end
+    if y2 > y3 then x2,y2,x3,y3 = x3,y3,x2,y2 end
+    if y1 > y2 then x1,y1,x2,y2 = x2,y2,x1,y1 end
+
+    local function interp(x0, y0, x1, y1)
+        local result = {}
+        local dy = y1 - y0
+        if dy == 0 then return result end
+        for i=0, dy do
+            add(result, x0 + (x1 - x0) * (i / dy))
+        end
+        return result
+    end
+
+    local x_a = interp(x1, y1, x3, y3)
+    local x_b = {}
+    for v in all(interp(x1, y1, x2, y2)) do add(x_b, v) end
+    for v in all(interp(x2, y2, x3, y3)) do add(x_b, v) end
+
+    local m = min(#x_a, #x_b)
+    for y=0, m-1 do
+        local xa = x_a[y+1]
+        local xb = x_b[y+1]
+        if xa and xb then
+            if xa > xb then xa, xb = xb, xa end
+            line(xa, y1 + y, xb, y1 + y, col)
+        end
+    end
+end
+
 function draw_nurse()
     spr(nurse.sp, nurse.x, nurse.y)
 
-    -- draw eye sight beam
-    local ex = nurse.x + (nurse.dir == 1 and 8 or -6)
+    local ex = nurse.x + (nurse.dir == 1 and 8 or -1)
     local ey = nurse.y + 4
 
-    -- longer beam for effect
-    local beam_end = nurse.dir == 1 and ex + 12 or ex - 12
+    local length = 30
+    local spread = 15
+    local end_x = ex + (nurse.dir == 1 and length or -length)
+    local top_y = ey - spread
+    local bot_y = ey + spread
 
-    -- eyesight beam: flickers slightly for effect
-    if (time() % 0.5 < 0.25) then
-        line(ex, ey, beam_end, ey, 9) -- color 9 = light red
-    else
-        line(ex, ey, beam_end, ey, 8) -- color 8 = white
+    local colors = {7,10,15}
+				local base_spread = 6
+    
+   for i = #colors, 1, -1 do
+        local fade = i - 1
+        
+        local spread = base_spread + fade * 3
+        local tip_x = end_x + (nurse.dir == 1 and fade * 2 or -fade * 2)
+        local flicker_offset = sin(time() * 6 + i) * 1.5
+								local top_y = ey - spread - flicker_offset
+								local bot_y = ey + spread + flicker_offset
+								draw_triangle(ex, ey, tip_x, top_y, tip_x, bot_y, colors[i])
     end
 end
+
 
 doors = {}
 pause_timer = 0
