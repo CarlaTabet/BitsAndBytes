@@ -143,26 +143,20 @@ end
 function draw_nurse()
     spr(nurse.sp, nurse.x, nurse.y)
 
-    -- draw eye beam cone
-    local ex = nurse.x + (nurse.dir == 1 and 8 or -1)
+    -- draw eye sight beam
+    local ex = nurse.x + (nurse.dir == 1 and 8 or -6)
     local ey = nurse.y + 4
-    local beam_length = 40
-    local beam_width = 12
 
-    local end_x = ex + (nurse.dir == 1 and beam_length or -beam_length)
-    local end_y1 = ey - beam_width
-    local end_y2 = ey + beam_width
+    -- longer beam for effect
+    local beam_end = nurse.dir == 1 and ex + 12 or ex - 12
 
+    -- eyesight beam: flickers slightly for effect
     if (time() % 0.5 < 0.25) then
-        color = 7 -- bright
+        line(ex, ey, beam_end, ey, 9) -- color 9 = light red
     else
-        color = 6 -- dimmer flicker
+        line(ex, ey, beam_end, ey, 8) -- color 8 = white
     end
-
-    -- draw cone-shaped eyesight beam
-    tri(ex, ey, end_x, end_y1, end_x, end_y2, color)
 end
-
 
 doors = {}
 pause_timer = 0
