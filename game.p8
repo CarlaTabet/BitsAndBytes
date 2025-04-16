@@ -2,6 +2,9 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
+id_card_collected = false
+id_card = nil
+
 rooms = {
     --Name of room, x,y is top right corner and w,h is how big it is
     graveyard = {x=0,y=0,w=36,h=36},
@@ -28,7 +31,7 @@ exits = {
         px = 400,
         py = 0,
         condition = function()
-            return player.x >= 248 and player.x <=256 and player.y >=384 and player.y <= 392
+            return id_card_collected and player.x >= 248 and player.x <=256 and player.y >=384 and player.y <= 392
         end
     },
     {
@@ -99,6 +102,25 @@ function load_blood_drops_from_map()
     end
 end
 
+function load_id_card_from_map()
+    id_card = nil
+    local room = rooms[current_room]
+    for ty = room.y, room.y + room.h - 1 do
+        for tx = room.x, room.x + room.w - 1 do
+            if mget(tx, ty) == 45 then
+                id_card = {
+                    tx = tx,
+                    ty = ty,
+                    x = tx * 8,
+                    y = ty * 8,
+                    collected = false
+                }
+                return
+            end
+        end
+    end
+end
+
 
 function _init()
     current_room = "graveyard"
@@ -120,6 +142,7 @@ function _init()
     spawn_blood_drop(25, 58)
 	load_flowers_from_map()
     load_blood_drops_from_map()
+    load_id_card_from_map()
     time_elapsed = 0
     max_time = 60 * 60
 end
@@ -230,7 +253,12 @@ function _update()
 			    player_collect_flower()
 					end
 				end
-
+    if id_card and not id_card.collected and abs(player.x - id_card.x) < 8 and abs(player.y - id_card.y) < 8 then
+        id_card.collected = true
+        mset(id_card.tx, id_card.ty, 16)
+        id_card_collected = true
+    -- maybe add a pick up sound here?
+    end
 end
 
 function draw_riddle()
@@ -273,13 +301,16 @@ function _draw()
     palt(6, false)
     palt(0,true)
     
-    -- draw blood drops
     for drop in all(blood_drops) do
         if not drop.collected then
             local draw_x = drop.x - cam_x
             local draw_y = drop.base_y + drop.float_offset - cam_y
             spr(60, draw_x, draw_y)
         end
+    end
+
+    if id_card and not id_card.collected then
+        spr(45, id_card.x - cam_x, id_card.y - cam_y)
     end
 
     if current_room == "graveyard" then
@@ -371,6 +402,7 @@ function room_change()
             player.y = exit.py
             load_flowers_from_map()
             load_blood_drops_from_map()
+            load_id_card_from_map()
             return
         end 
     end
