@@ -80,6 +80,25 @@ function load_flowers_from_map()
     end
 end
 
+function load_blood_drops_from_map()
+    blood_drops = {} 
+    local room = rooms[current_room]
+    for ty = room.y, room.y + room.h - 1 do
+        for tx = room.x, room.x + room.w - 1 do
+            if mget(tx, ty) == 60 then 
+                add(blood_drops, {
+                    x = tx * 8,
+                    y = ty * 8,
+                    base_y = ty * 8,
+                    float_offset = 0,
+                    float_speed = 0.05,
+                    collected = false
+                })
+            end
+        end
+    end
+end
+
 
 function _init()
     current_room = "graveyard"
@@ -99,7 +118,8 @@ function _init()
     
 
     spawn_blood_drop(25, 58)
-				load_flowers_from_map()
+	load_flowers_from_map()
+    load_blood_drops_from_map()
     time_elapsed = 0
     max_time = 60 * 60
 end
@@ -350,6 +370,7 @@ function room_change()
             player.x = exit.px
             player.y = exit.py
             load_flowers_from_map()
+            load_blood_drops_from_map()
             return
         end 
     end
