@@ -42,6 +42,15 @@ exits = {
         condition = function()
             return player.x == 49 and player.y == 25
         end
+    },
+    {
+        room = "room2",
+        dest = "room1",
+        px = 247,
+        py = 380,
+        condition = function()
+            return player.x >= 325 and player.x <= 338 and player.y >= 48 and player.y <= 52
+        end
     }
 }
 
@@ -277,6 +286,7 @@ function update_doors()
     for door in all(doors) do 
         if door_transition and pause_timer <= 0  and active_door then
             player.x -= 12
+            player.speed = 3
             active_door.state = "closed"
             active_door = nil
             door_transition = false
@@ -381,7 +391,7 @@ function _update()
 				end
     if id_card and not id_card.collected and abs(player.x - id_card.x) < 8 and abs(player.y - id_card.y) < 8 then
         id_card.collected = true
-        mset(id_card.tx, id_card.ty, 16)
+        mset(id_card.tx, id_card.ty, 28)
         id_card_collected = true
     -- maybe add a pick up sound here?
     end
@@ -720,7 +730,7 @@ e1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1b0c1e100000000
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
 e1c1b0c1b0c1b0c1b0c1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1b0c1b0c1b0c1b0c1b0e100000000000000000000000000d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
-e1b0c1b0c1b0c1b0c1b0e1b0c1b0c1b0c1b0c1b0c1b0c1b0c1e1c1b0c1b0c1e0e0b0c1e100000000000000000000000000d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
+e1b0c1b0c1b0c1b0c1b0e1b0c1b0c1b0c1b0d2b0c1b0c1b0c1e1c1b0c1b0c1e0e0b0c1e100000000000000000000000000d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
 e1c1b0c1b0c1b0c1b0c1e1c1b0c1b0c1b0c1b0c1b0c1b0c1b0e1b0c1b0c1b0e0e0c1b0e1a0000000000000000000000000d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
@@ -748,7 +758,7 @@ e1b0c1b0c1b0041434344454c1b0c1b0c1b0c1b0041434344454c1b0c1b0c1b0c1b0c1e1a0a00000
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a0a0000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
 e1c1b0c1b0c1051525154555b0c164748494b0c1051525154555b0c1b0c1b0c1b0c1b0e1a0a000000000000000000000f3d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
-e1b0c1b0c1d2c116261646b0c1b0c17585b0c1b0c116261646b0c1b0c1b0c1b0c1b0c1e1000000000000000000000000a0d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
+e1b0c1b0c1b0c116261646b0c1b0c17585b0c1b0c116261646b0c1b0c1b0c1b0c1b0c1e1000000000000000000000000a0d0d1d1d1d1d1d1d1d1d1d1d1d1d1d1
 d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0a000000000c0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c0
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e100000000000000000000000000d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0
 d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0a0a0000000c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0
