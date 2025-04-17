@@ -208,46 +208,6 @@ function draw_nurse()
     end
 end
 
-
-doors = {}
-pause_timer = 0
-door_transition = false
-active_door = nil
-blood_drops = {}
-flowers = {}
-puzzle_active = false
-puzzle_solved = false
-
-function spawn_blood_drop(x, y)
-    add(blood_drops, {
-        x = x,
-        y = y,
-        base_y = y,    -- original position
-        float_offset = 0,
-        float_speed = 0.05,
-        collected = false
-    })
-end
-
-function load_flowers_from_map()
-    flowers = {}
-    local room = rooms[current_room]
-    for ty = room.y, room.y + room.h - 1 do
-        for tx = room.x, room.x + room.w - 1 do
-            if mget(tx, ty) == 59 then -- flower sprite
-                add(flowers, {
-                    tx = tx,
-                    ty = ty,
-                    x = tx * 8,
-                    y = ty * 8,
-                    collected = false
-                })
-            end
-        end
-    end
-end
-
-
 function _init()
     current_room = "graveyard"
 
