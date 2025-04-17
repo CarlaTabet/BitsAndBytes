@@ -220,13 +220,6 @@ function _init()
 
     current_room = "graveyard"
 
-    player = {
-        x = 16,
-        y = 16,
-        sp = 9,
-        speed = 3
-    }
-
     blood = 10
     flower = 0
 	
@@ -427,6 +420,9 @@ function _draw()
     print(blood, 10, 2, 8)
     spr(58, 1, 10)
     print(flower, 10, 10, 8)
+    if id_card_collected then
+        spr(45, 1, 19)
+    end
     draw_time_bar()
     print("x="..player.x.." y="..player.y, 40, 0, 7)
     local tile_x = flr(player.x / 8)
