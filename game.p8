@@ -62,7 +62,7 @@ exits = {
         px = 521,
         py = 312,
         condition = function ()
-            return player.x == 454 and player.y == 93
+            return player.x == 466 and player.y == 183
         end
     }
 }
@@ -347,7 +347,6 @@ function check_vision_cone_hit()
 
 end
 
-
 function _init()
 				id_card_collected = false
 				game_over = false
@@ -366,14 +365,14 @@ function _init()
     flower = 0
 	
     --Doors
-    add_door("room2", 43, 5, "left")
-    add_door("room2", 57, 13, "right")
+    add_door("room2", 43, 5, "left")   
+    add_door("room2", 57, 22, "right")
     
-				load_cameras_from_map()
-				load_button_from_map()
+	load_cameras_from_map()    
+	load_button_from_map()
 				
     spawn_blood_drop(25, 58)
-				load_flowers_from_map()
+	load_flowers_from_map()
     load_blood_drops_from_map()
     load_id_card_from_map()
     time_elapsed = 0
@@ -383,10 +382,11 @@ end
 function update_doors()
     for door in all(doors) do 
         if door_transition and pause_timer <= 0  and active_door then
-            if door.direction == "left" then
+            if active_door.direction == "left" then
                 player.x -= 12
             else
                 player.x += 12
+            end
             player.speed = 3
             active_door.state = "closed"
             active_door = nil
