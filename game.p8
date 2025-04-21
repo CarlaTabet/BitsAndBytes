@@ -12,7 +12,8 @@ rooms = {
     --Name of room, x,y is top right corner and w,h is how big it is
     graveyard = {x=0,y=0,w=36,h=36},
     room1 = {x=0,y=39,w=36,h=25},
-    room2 = {x=43, y=0, w=16, h=36}
+    room2 = {x=43, y=0, w=16, h=36},
+    lab = {x=49, y=39, w=42, h=25}
 }
 
 exits = {
@@ -53,6 +54,15 @@ exits = {
         py = 380,
         condition = function()
             return player.x >= 325 and player.x <= 338 and player.y >= 48 and player.y <= 52
+        end
+    },
+    {
+        room = "room2",
+        dest = "lab",
+        px = 521,
+        py = 312,
+        condition = function ()
+            return player.x == 454 and player.y == 93
         end
     }
 }
@@ -356,7 +366,8 @@ function _init()
     flower = 0
 	
     --Doors
-    add_door("room2", 43, 5)
+    add_door("room2", 43, 5, "left")
+    add_door("room2", 57, 13, "right")
     
 				load_cameras_from_map()
 				load_button_from_map()
@@ -372,7 +383,10 @@ end
 function update_doors()
     for door in all(doors) do 
         if door_transition and pause_timer <= 0  and active_door then
-            player.x -= 12
+            if door.direction == "left" then
+                player.x -= 12
+            else
+                player.x += 12
             player.speed = 3
             active_door.state = "closed"
             active_door = nil
@@ -637,10 +651,10 @@ function _draw()
         spr(45, 1, 19)
     end
     draw_time_bar()
-    print("x="..player.x.." y="..player.y, 40, 0, 7)
+    print("x="..player.x.." y="..player.y, 40, 0, 0)
     local tile_x = flr(player.x / 8)
     local tile_y = flr(player.y / 8)   
-    print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 7)
+    print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 0)
     if door_transition then
         print("PAUSED", 50, 50, 7)
     end
@@ -744,7 +758,7 @@ function room_change()
     end
 end
 
-function add_door(room, x, y, tx, ty)
+function add_door(room, x, y, direction)
     add(doors, {
         room = room,
         x = x,
@@ -755,8 +769,7 @@ function add_door(room, x, y, tx, ty)
             {38, 31}
         },
         state = "closed",
-        target_x = tx or player.x,
-        target_y = ty or player.y
+        direction = direction
     })
 end
 
@@ -987,8 +1000,8 @@ __map__
 0402010202020202130201020212121212101012121210101202021302021210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 0402122021121202020202020212101010101010101010101201020202021210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 04021230313b1202020202021312101010101010101010101202020201021210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
-0402121010101212121212121212101012121212121212121202020202021210101201040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
-0402121010101010101010101010101012021302020202020202010202021210101202040000000000000a1d240e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
+0402121010101212121212121212101012121212121212121202020202021210101201040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d1d1d000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
+0402121010101010101010101010101012021302020202020202010202021210101202040000000000000a1d240e0e0e0e0e0e0e0e0e0e0e0e1d1d1d000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 0402121010101010101010101010101012020212202112121202020202131210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 040112101012121210101212121212121201021230313b3b1212121212121210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 0402121010120112101012010202121212120212101010101010101010101010101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
