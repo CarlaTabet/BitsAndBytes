@@ -4,7 +4,9 @@ __lua__
 
 id_card_collected = false
 id_card = nil
+button = nil
 cameras = {}
+
 
 rooms = {
     --Name of room, x,y is top right corner and w,h is how big it is
@@ -64,6 +66,27 @@ flowers = {}
 puzzle_active = false
 puzzle_solved = false
 
+
+function load_button_from_map()
+    button = nil
+    local room = rooms[current_room]
+    for ty = room.y, room.y + room.h - 1 do
+        for tx = room.x, room.x + room.w - 1 do
+            if mget(tx, ty) == 52 then
+                button = {
+                    tx = tx,
+                    ty = ty,
+                    pressed = false,
+                    animating = false,
+                    anim_timer = 0,
+                    done = false
+                }
+                return
+            end
+        end
+    end
+end
+
 function spawn_blood_drop(x, y)
     add(blood_drops, {
         x = x,
@@ -86,7 +109,7 @@ function load_cameras_from_map()
                     x = tx * 8,
                     y = ty * 8,
                     dir = (id == 36) and 1 or -1, -- 1 = right, -1 = left
-                    sweep_timer = rnd() -- random offset so they don't sync
+                    sweep_timer = rnd()
                 })
             end
         end
@@ -272,19 +295,46 @@ function check_vision_cone_hit()
     end
     
     for c in all(cameras) do
-        local cx = c.x + 4
-        local cy = c.y + 4
-        local dir = c.dir
-        local in_cam_y_range = abs(py - cy) < 8
-			
-        if dir == 1 and px > cx and px < cx + 32 and in_cam_y_range then
-            game_over = true
-            return
-        elseif dir == -1 and px < cx and px > cx - 32 and in_cam_y_range then
-            game_over = true
-            return
-        end
-    end
+	    local cx = c.x + 4
+	    local cy = c.y + 4
+	    local dir = c.dir
+	
+	    local base_angle = (dir == 1) and 0 or 0.5
+	    local sweep = sin((time() + c.sweep_timer) * 0.2) * 0.4
+	    local angle = base_angle + sweep
+	
+	    local len = 30
+	    local spread = 10
+	
+	    local tip_x = cx + cos(angle) * len
+	    local tip_y = cy + sin(angle) * len
+	
+	    local perp_angle = angle + 0.25
+	    local top_x = tip_x + cos(perp_angle) * spread
+	    local top_y = tip_y + sin(perp_angle) * spread
+	    local bot_x = tip_x - cos(perp_angle) * spread
+	    local bot_y = tip_y - sin(perp_angle) * spread
+	
+	    if top_y > bot_y then
+	        top_x, bot_x = bot_x, top_x
+	        top_y, bot_y = bot_y, top_y
+	    end
+	
+	    local player_center = {
+	        x = player.x + 4,
+	        y = player.y + 4
+	    }
+	
+	    local v1 = {x = cx, y = cy}
+	    local v2 = {x = top_x, y = top_y}
+	    local v3 = {x = bot_x, y = bot_y}
+	
+	    if point_in_triangle(player_center, v1, v2, v3) then
+	        game_over = true
+	        return
+	    end
+		end
+
 end
 
 
@@ -309,7 +359,8 @@ function _init()
     add_door("room2", 43, 5)
     
 				load_cameras_from_map()
-
+				load_button_from_map()
+				
     spawn_blood_drop(25, 58)
 				load_flowers_from_map()
     load_blood_drops_from_map()
@@ -443,7 +494,39 @@ function _update()
     if not game_over then
     	check_vision_cone_hit()
 				end
+				
+			if button and not button.done then
+    local bx = button.tx * 8 + 4
+    local by = button.ty * 8 + 4
+    local px = player.x + 4
+    local py = player.y + 4
+
+    if abs(px - bx) < 12 and abs(py - by) < 12 and btnp(5) and not button.animating and not button.pressed then
+        button.animating = true
+        button.anim_timer = 30
+    end
+
+    if button.animating then
+        button.anim_timer -= 1
+        if button.anim_timer <= 0 then
+            button.animating = false
+            button.pressed = true
+            button.anim_timer = 45 -- stay "pressed" briefly
+            mset(button.tx, button.ty, 53)
+        end
+    elseif button.pressed then
+       if not button.cleared then
+        cameras = {}
+        button.cleared = true -- just to make sure it happens once
+			    end
 			
+			    button.anim_timer -= 1
+			    if button.anim_timer <= 0 then
+			        button.done = true
+			        button.pressed = false
+			    end
+    end
+	end
 
 end
 
@@ -568,7 +651,24 @@ function _draw()
 	    print("you were spotted!", 32, 58, 8)
 	    print("press ❎ to retry", 30, 66, 7)
 				end
-
+				
+				if button and not button.done then
+	    local bx = button.tx * 8 + 4
+	    local by = button.ty * 8 + 4
+	    local px = player.x + 4
+	    local py = player.y + 4
+	
+	    local sx = bx - cam_x
+	    local sy = by - cam_y
+	
+	    if button.animating then
+	        print("disabling...", max(0, sx - 20), sy - 12, 10)
+	    elseif button.pressed then
+	        print("cameras disabled!", max(0, sx - 30), sy - 12, 11)
+	    elseif abs(px - bx) < 12 and abs(py - by) < 12 then
+	        print("press ❎ to disable cameras", max(0, sx - 30), sy - 12, 6)
+	    end
+		end
 end
 
 function draw_doors()
@@ -638,6 +738,7 @@ function room_change()
             load_blood_drops_from_map()
             load_id_card_from_map()
             load_cameras_from_map()
+            load_button_from_map()
             return
         end 
     end
@@ -753,14 +854,14 @@ __gfx__
 06655665655665507773b777daaaaad0000066600666000002222220405665040077770000777700089aaa906777776000777780711168670000000004444440
 06656566656565507773b777da8a2add880000000000008802222220440550440000000000777700009aaa900777766000000080711166670000000004444440
 06655665655665507773b777daaaaadd000088888888000000000000440000440000000000000000000aaa000077760000000080777777770000000004044440
-066565656566655055555555daeacadd0000000000000000444a94440000000000000000000000000088800044488844000800000a0990a00006660004044440
-066565656566655054449995daaaaadd000000000000000044499944000000000000000000000000088988004488988400080000a09aa90a0067776004444440
-066666666666655054444445dddddddd0000000000000000449aaa4400000000000000000000000008999800448999840084800009aa9a900677600004444440
-066666666666655059444445d0d0d0dd00000000000000004499a4440000000000000000000000000889880044889884008480009aaaa9a96776000004444440
-065565665556655065444956dddddddd0000000000000000444554440000000000000000000000000088800044488844087448009aaaaaa96776000004444440
-066666666666655065444956d00000dd000000000000000044455444000000000000000000000000000b00004444b4440877480009aaaa900677600004444440
-066555666556655065444956d00000dd000000000000000044455444000000000000000000000000000bb0004444bb4400888000a09aa90a0067776004444440
-066666666666655065555556dddddddd00000000000000004445544400000000000000000000000000bb0000444bb444000800000a0990a00006660000000000
+066565656566655055555555daeacadd88aaa88888888888444a94440000000000000000000000000088800044488844000800000a0990a00006660004044440
+066565656566655054449995daaaaadd88aaa88888aaa88844499944000000000000000000000000088988004488988400080000a09aa90a0067776004444440
+066666666666655054444445dddddddd8555558885555588449aaa4400000000000000000000000008999800448999840084800009aa9a900677600004444440
+066666666666655059444445d0d0d0dd85555588855555884499a4440000000000000000000000000889880044889884008480009aaaa9a96776000004444440
+065565665556655065444956dddddddd8555558885555588444554440000000000000000000000000088800044488844087448009aaaaaa96776000004444440
+066666666666655065444956d00000dd855555888555558844455444000000000000000000000000000b00004444b4440877480009aaaa900677600004444440
+066555666556655065444956d00000dd855555888555558844455444000000000000000000000000000bb0004444bb4400888000a09aa90a0067776004444440
+066666666666655065555556dddddddd85555588855555884445544400000000000000000000000000bb0000444bb444000800000a0990a00006660000000000
 00000000000000000000000000000000000000000000000077770111011111111111111011106666444444440000000044444444444444440000000000000000
 20222222022222222222222222222222222222202222222077770111011111111111111011106666444444440c777c7044444444444444440000000000000000
 2022222202222222222222222222222222222220222222207777011100000000000000001110666644777444077cc77044444444444444440000000000000000
@@ -879,7 +980,7 @@ __map__
 04121010101212121210101202020202121010120212121212121212123b30313b1202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 041210101010101010101012020202021210101201121010101010101010101010120204000000000000171d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 04121010101010101010101202020202121010120212101010101010101010101012020400000000000a0a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
-04121212121212121212121202020201121010120212101012121212121212101012020400000000000a0a1d0e0e0e0e0e0e0e0e0e0e0e0e251d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
+04121212121212121212121202020201121010120212101012121212121212101012020400000000000a0a1d340e0e0e0e0e0e0e0e0e0e0e251d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 04020102020202021302010202121212121010121212101012020213020212101012020400000000000a171d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 040212202112120202020202021210101010101010101010120102020202121010120204000000000000171d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
 04021230313b1202020202021312101010101010101010101202020201021210101202040000000000000a1d0e0e0e0e0e0e0e0e0e0e0e0e0e1d0a00000000000000000e0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0e
