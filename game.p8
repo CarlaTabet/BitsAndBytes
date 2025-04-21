@@ -208,9 +208,52 @@ function draw_nurse()
     end
 end
 
-function _init()
-    current_room = "graveyard"
+function sign(p1, p2, p3)
+    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+end
 
+function point_in_triangle(pt, v1, v2, v3)
+    local d1 = sign(pt, v1, v2)
+    local d2 = sign(pt, v2, v3)
+    local d3 = sign(pt, v3, v1)
+
+    local has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+    local has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+
+    return not (has_neg and has_pos)
+end
+
+function check_vision_cone_hit()
+    local ex = nurse.x + (nurse.dir == 1 and 8 or -1)
+    local ey = nurse.y + 4
+
+    local length = 30
+    local base_spread = 6
+    local tip_x = ex + (nurse.dir == 1 and length or -length)
+
+    local flicker_offset = sin(time() * 6 + 1) * 1.5
+    local top_y = ey - (base_spread + flicker_offset)
+    local bot_y = ey + (base_spread + flicker_offset)
+
+    local p_center = {
+        x = player.x + 4,
+        y = player.y + 4
+    }
+
+    local v1 = {x = ex, y = ey}
+    local v2 = {x = tip_x, y = top_y}
+    local v3 = {x = tip_x, y = bot_y}
+
+    if point_in_triangle(p_center, v1, v2, v3) then
+        game_over = true
+    end
+end
+
+
+function _init()
+				game_over = false
+    current_room = "graveyard"
+				puzzle_solved = false
     player = {
         x = 16,
         y = 16,
@@ -326,6 +369,14 @@ function _update()
 				  player_update()
 					room_change()
 				end
+				
+				if game_over then
+				    if btnp(5) then
+				        _init()
+				    end
+				  		return
+				end
+
     
     time_elapsed = min(time_elapsed + 1, max_time)
     for drop in all(blood_drops) do
@@ -349,6 +400,10 @@ function _update()
     -- maybe add a pick up sound here?
     end
     update_nurse() 
+    if not game_over then
+    	check_vision_cone_hit()
+				end
+
 
 end
 
@@ -431,6 +486,14 @@ function _draw()
     if door_transition then
         print("PAUSED", 50, 50, 7)
     end
+    
+    if game_over then
+	    rectfill(20, 50, 108, 78, 0)
+	    rect(20, 50, 108, 78, 8)
+	    print("you were spotted!", 32, 58, 8)
+	    print("press ❎ to retry", 30, 66, 7)
+				end
+
 end
 
 function draw_doors()
