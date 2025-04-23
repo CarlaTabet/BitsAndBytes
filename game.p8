@@ -378,8 +378,10 @@ function check_vision_cone_hit()
 end
 
 function _init()
-				id_card_collected = false
-				game_over = false
+	id_card_collected = false
+	game_over = false
+    message = ""
+    message_timer = 0
     current_room = "graveyard"
 				puzzle_solved = false
     player = {
@@ -743,8 +745,8 @@ function _draw()
 				end
 
 
-  	 draw_nurse() 
-    
+  	 draw_nurse()
+
 
     camera()
     spr(60, 1, 1)
