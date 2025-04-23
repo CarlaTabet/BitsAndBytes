@@ -410,7 +410,7 @@ function _init()
     load_blood_drops_from_map()
     load_id_card_from_map()
     time_elapsed = 0
-    max_time = 60 * 60
+    max_time = 300 * 60 -- 5 minutes
 end
 
 function update_doors()
@@ -945,6 +945,10 @@ function draw_time_bar()
     local fill_w = flr((bar_w - 2) * (1 - t))
     
     rectfill(bar_x + 1, bar_y + 1, bar_x + 1 + fill_w, bar_y + bar_h - 1, 8)
+
+    if time_elapsed >= max_time then
+        game_over = true
+    end
 end
 
 
