@@ -394,7 +394,11 @@ function _init()
 	
     --Doors
     add_door("room2", 43, 5, "left")   
-    add_door("room2", 57, 22, "right")
+    add_door("room2", 57, 32, "right")
+    add_door("room2", 43, 32, "left")
+    add_door("room1", 35, 48, "right")
+    add_door("lab", 49, 41, ",left")
+    add_door("storage_closet", 127, 43, "right")
     
 	load_cameras_from_map()    
 	load_button_from_map()
