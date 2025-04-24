@@ -391,7 +391,7 @@ function _init()
         speed = 3
     }
 
-    current_room = "graveyaard"
+    current_room = "graveyard"
 
     blood = 0
     flower = 0
