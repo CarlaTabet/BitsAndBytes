@@ -757,10 +757,10 @@ function _draw()
         spr(45, 1, 19)
     end
     draw_time_bar()
-    --print("x="..player.x.." y="..player.y, 40, 0, 0)
+    print("x="..player.x.." y="..player.y, 40, 0, 0)
     local tile_x = flr(player.x / 8)
     local tile_y = flr(player.y / 8)   
-    --print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 0)
+    print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 0)
     if door_transition then
         print("PAUSED", 50, 50, 7)
     end
