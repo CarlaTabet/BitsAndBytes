@@ -27,10 +27,19 @@ exits = {
         --condition function is where the player needs to be in order to exit
         room = "graveyard", 
         dest="room1", 
-        px=40, 
-        py=312,
+        px=42, 
+        py=310,
         condition = function()
             return player.x >= 160 and player.x <= 178 and player.y==274
+        end
+    },
+    {
+        room = "room1",
+        dest = "graveyard",
+        px = 165,
+        py = 260,
+        condition= function()
+            return player.x >= 40 and player.x <= 50 and player.y <= 312
         end
     },
     {
@@ -733,27 +742,28 @@ function _draw()
                 center("or press x to start game", 45, 120, 5)
             end
         elseif page == 3 then
-            center("to get more blood, you must get", 45, 50, 8)
-            center("to the hospital and steal blood", 45, 60, 8)
+            center("to reenergize, you must get to", 45, 50, 8)
+            center("the hospital and steal blood", 45, 60, 8)
             center("but beware...", 45, 70, 8)
             if (time() % 2) < 1.3 then
                 center("press z to continue", 45, 110, 5)
                 center("or press x to start game", 45, 120, 5)
             end
         elseif page == 4 then
-            center("you must first solve puzzles and", 45, 50, 8)
-            center("hide from any people to make it", 45, 60, 8)
+            center("you must avoid any people", 45, 50, 8)
+            center("and solve puzzles", 45, 60, 8)
             center("to the blood", 45, 70, 8)
             center("you have until sunrise...", 45, 90, 8)
             if (time() % 2) < 1.3 then
-                center("or press z or x to start game", 45, 120, 5)
+                center("press z to continue", 45, 110, 5)
+                center("or press x to start game", 45, 120, 5)
             end
         elseif page == 5 then
             center("good luck", 45, 50, 8)
             center("ps...its a nice night", 45, 80, 8)
             center("to pick flowers", 45, 90, 8)
             if (time() % 2) < 1.3 then
-                center("or press z or x to start game", 45, 120, 5)
+                center("press z or x to start game", 45, 120, 5)
             end
         end
 
