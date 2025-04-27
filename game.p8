@@ -28,9 +28,20 @@ exits = {
         room = "graveyard", 
         dest="room1", 
         px=42, 
-        py=310,
+        py=316,
         condition = function()
-            return player.x >= 160 and player.x <= 178 and player.y==274
+            if player.x >= 160 and player.x <= 178 and player.y==274 then
+                if not puzzle_solved and not puzzle_active then
+                    puzzle_active = true
+                    selected_dial = 1
+                    symbols = {40,41,42,43,44}
+				    correct_combo = {1, 2, 3}
+				    current_combo = {1, 1, 1}
+                    return false
+                end
+                return puzzle_solved
+            end
+            return false 
         end
     },
     {
@@ -39,7 +50,7 @@ exits = {
         px = 165,
         py = 260,
         condition= function()
-            return player.x >= 40 and player.x <= 50 and player.y <= 312
+            return player.x >= 24 and player.x <= 51 and player.y <= 314
         end
     },
     {
@@ -403,7 +414,7 @@ function _init()
 	game_over = false
     message = ""
     message_timer = 0
-				puzzle_solved = false
+	puzzle_solved = false
     player = {
         x = 784,
         y = 368,
@@ -553,12 +564,14 @@ function _update()
     update_doors()
 
 
-				if puzzle_active then
-			   update_puzzle()
-				else
-				  player_update()
-						room_change()
-				end
+	if puzzle_active then
+		update_puzzle()
+    else
+	    player_update()
+		room_change()
+	end
+
+
 				
 				if game_over then
 				    if btnp(5) then
@@ -850,10 +863,10 @@ function _draw()
         spr(45, 1, 19)
     end
     draw_time_bar()
-    print("x="..player.x.." y="..player.y, 40, 0, 7)
+    print("x="..player.x.." y="..player.y, 40, 0, 8)
     local tile_x = flr(player.x / 8)
     local tile_y = flr(player.y / 8)   
-    print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 7)
+    print("map pos: ("..tile_x..","..tile_y..")", 40, 40, 8)
     if door_transition then
         print("PAUSED", 50, 50, 7)
     end
@@ -951,18 +964,10 @@ end
 function room_change()
     for exit in all(exits) do 
         if exit.room == current_room and exit.condition() then
-            if not puzzle_solved and current_room == "graveyard" then
-				puzzle_active = true
-				selected_dial = 1
-				symbols = {40,41,42,43,44}
-				correct_combo = {1, 2, 3}
-				current_combo = {1, 1, 1}
-				return
-			end
             current_room = exit.dest
-            if exit.dest == "lab" then
-				puzzle_active = false
-			end
+            --if exit.dest == "lab" then
+			--	puzzle_active = false
+			--end
             player.x = exit.px
             player.y = exit.py
             load_flowers_from_map()
