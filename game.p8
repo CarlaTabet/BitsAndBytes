@@ -532,7 +532,9 @@ end
 
 
 function _init()
+
 	music(0)
+	nurses_frozen = false
 	if (#original_map == 0) then
     for y=0,63 do
         for x=0,127 do
@@ -752,6 +754,12 @@ function _update()
 				        _init()
 				    end
 				  		return
+				end
+				
+				if time_elapsed >= max_time and not game_over then
+	    game_over = true
+	    music(-1)
+	    sfx(31)
 				end
 				
 					if current_room == "lab" then
@@ -1345,12 +1353,6 @@ function draw_time_bar()
     
     rectfill(bar_x + 1, bar_y + 1, bar_x + 1 + fill_w, bar_y + bar_h - 1, 8)
 
-    if time_elapsed >= max_time then
-        game_over = true
-        music(-1)
-        sfx(31)
-        return
-    end
 end
 
 
