@@ -591,7 +591,7 @@ function _init()
     load_blood_drops_from_map()
     load_id_card_from_map()
     time_elapsed = 0
-    max_time = 1 * 60 -- 3 minutes
+    max_time = 180 * 60 -- 3 minutes
 end
 
 function update_doors()
