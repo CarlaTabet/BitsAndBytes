@@ -856,9 +856,13 @@ function _update()
     -- check if player touches window escape
     if (current_room == "bank") then
         if (flr(player.x/8) == 86 and (flr(player.y/8) == 16 or flr(player.y/8) == 15)) then
-            game_won = true
-            music(-1)
-            sfx(32)
+            if not game_won then
+									    game_won = true
+									    music(-1)
+									    sfx(32)
+									end
+
+           
         end
     end
 end
@@ -931,8 +935,7 @@ end
 
 function _draw()
     if game_won then
-   	
-    --cls()
+				   
     
     rectfill(10, 30, 118, 98, 0) -- bigger box
     rect(10, 30, 118, 98, 7) -- white border
