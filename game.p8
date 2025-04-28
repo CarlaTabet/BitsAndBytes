@@ -37,19 +37,22 @@ exits = {
         px=42, 
         py=316,
         condition = function()
-    if player.x >= 160 and player.x <= 178 and player.y == 275 then
-        if puzzle_solved then
-            return true
-        elseif not puzzle_active then
-            puzzle_active = true
-            selected_dial = 1
-            symbols = {40,41,42,43,44}
-            correct_combo = {1, 2, 3}
-            current_combo = {1, 1, 1}
-        end
-    end
-    return false
-end
+					    if player.x >= 160 and player.x <= 178 and (player.y == 274 or player.y == 275) then
+					        if puzzle_solved then
+            			return true
+					        elseif not puzzle_active then
+					            puzzle_active = true
+					            selected_dial = 1
+					            symbols = {40,41,42,43,44}
+					            correct_combo = {1, 2, 3}
+					            current_combo = {1, 1, 1}
+					            
+					        end
+					        
+					    end
+					    return false
+					end
+
     },
     {
         room = "room1",
@@ -738,11 +741,11 @@ function _update()
 
 				if puzzle_active then
 					update_puzzle()
-			   
-				end
-				 player_update()
-					room_change()
-				
+			end
+			 	player_update()
+			 	room_change()
+			
+					
 				if game_over then
 				    if btnp(5) then
 				        _init()
@@ -1230,11 +1233,7 @@ end
 function room_change()
     for exit in all(exits) do 
         if exit.room == current_room and exit.condition() then
-            if current_room == "graveyard" and exit.dest ~= "graveyard" then
-												    if not puzzle_solved then
-												        puzzle_active = false
-												    end
-												end
+           
             current_room = exit.dest
         					
             player.x = exit.px
