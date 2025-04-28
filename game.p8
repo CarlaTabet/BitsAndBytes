@@ -525,6 +525,7 @@ function _init()
 	cameras_disabled=false
 	id_card_collected = false
 	game_over = false
+    game_won = false
     message = ""
     message_timer = 0
 	puzzle_solved = false
@@ -808,6 +809,12 @@ function _update()
     end
 	end
     end
+    -- check if player touches window escape
+    if (current_room == "bank") then
+        if (flr(player.x/8) == 106 and (flr(player.y/8) == 18 or flr(player.y/8) == 19)) then
+            game_won = true
+        end
+    end
 end
 
 function draw_camera_vision()
@@ -877,6 +884,16 @@ function center(txt, x, y, col)
 end
 
 function _draw()
+    if game_won then
+        cls()
+        rectfill(10, 40, 118, 88, 0) -- black background box
+        rect(10, 40, 118, 88, 7) -- white border
+        print("YOU HAVE FOUND THE", 20, 50, 8)
+        print("HOSPITAL BLOOD BANK", 20, 58, 8)
+        print("AND ESCAPED SAFELY!", 20, 66, 8)
+        return
+    end
+
     if intro then
         cls(0)
         if page == 1 then
