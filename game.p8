@@ -69,15 +69,15 @@ end
             return id_card_collected and player.x >= 274 and player.x <=280 and player.y >=379 and player.y <= 398
         end
     },
-    {
-        room = "graveyard",
-        dest = "room2",
-        px = 353,
-        py = 45,
-        condition = function()
-            return player.x == 46 and player.y == 34
-        end
-    },
+    --{
+      --  room = "graveyard",
+      --  dest = "room2",
+      --  px = 353,
+      --  py = 45,
+      --  condition = function()
+      --      return player.x == 46 and player.y == 34
+      --  end
+   -- },
     {
         room = "room2",
         dest = "room1",
