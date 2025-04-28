@@ -12,6 +12,8 @@ intro = true
 page = 1
 max_page = 5
 access_denied_timer = 0
+potion_used = false
+nurses_frozen = false
 
 
 rooms = {
@@ -318,6 +320,7 @@ nurses = {
 
 
 function update_nurse()
+if nurses_frozen then return end
     nurse.x += nurse.speed * nurse.dir
 
     if nurse.x <= 11 * 8 then
@@ -390,7 +393,7 @@ end
 function draw_nurses()
 	for nurse in all(nurses) do
     spr(nurse.sp, nurse.x, nurse.y)
-
+				if not nurses_frozen then
     local ex = nurse.x + (nurse.dir == 1 and 8 or -1)
     local ey = nurse.y + 4
 
@@ -413,6 +416,7 @@ function draw_nurses()
 								local bot_y = ey + spread + flicker_offset
 								draw_triangle(ex, ey, tip_x, top_y, tip_x, bot_y, colors[i])
     end
+    end
    end
 end
 
@@ -431,6 +435,8 @@ function point_in_triangle(pt, v1, v2, v3)
     return not (has_neg and has_pos)
 end
 function check_vision_cone_hit()
+				if current_room == "lab" and nurses_frozen then return end
+
     -- check single roaming nurse
     local ex = nurse.x + (nurse.dir == 1 and 8 or -1)
     local ey = nurse.y + 4
@@ -647,9 +653,11 @@ function update_lab_puzzle()
 
             potion = {
                 x = player.x,
-                y = player.y
+                y = player.y,
+                collected = false
             }
-             message = "potion complete!"
+            potion.collected = true
+            message = "potion complete!"
    									-- message_timer = 90
         elseif flower < 3 and not potion_spawned then
             message = "not enough flowers!"
@@ -661,7 +669,9 @@ function update_lab_puzzle()
 end
 
 function update_nurses()
+		if nurses_frozen then return end 
     for n in all(nurses) do
+    
         n.y += n.speed * n.dir
         
         local tx = flr((n.x + 4) / 8)
@@ -690,14 +700,7 @@ function _update()
         end
     else
 
-				if potion and not potion.collected then
-				    if abs(player.x - potion.x) < 8 and abs(player.y - potion.y) < 8 then
-				        potion.collected = true
-
-				        -- maybe play a sound here later
-				        -- you now have the potion!
-				    end
-				end
+				
 
     if door_transition then
         pause_timer -= 1
@@ -763,6 +766,9 @@ function _update()
     end
     update_nurse() 
     update_nurses()
+    
+    
+    
     if not game_over then
     	check_vision_cone_hit()
 				end
@@ -974,8 +980,9 @@ function _draw()
     end
     if potion and not potion.collected then
 				   spr(103, potion.x - cam_x, potion.y - cam_y)
+							
 				end
-
+				
     if current_room == "room2" then
     	draw_signs()
     	draw_camera_vision() 
@@ -988,7 +995,7 @@ function _draw()
         local tx = flr(player.x / 8)
         local ty = flr(player.y / 8)
         if mget(tx, ty) == 102 or mget(tx + 1, ty) == 102 or mget(tx, ty + 1) == 102 or mget(tx + 1, ty + 1) == 102 then
-            print("press ❎ to view recipe", player.x - 20, player.y - 10, 0)
+            print("press ❎ to view", player.x - 20, player.y - 10, 0)
         end
     end
     if message ~= "" then
@@ -1002,7 +1009,25 @@ function _draw()
 
   	 draw_nurse()
   	 draw_nurses()
-
+  	 
+  	 if player.x >= 520 and player.x <= 628 and player.y >= 336 and player.y <= 402 then
+			    if potion and not potion_used and potion.collected then 
+				    if (time() % 1) < 0.5 then
+				        print("press ❎ to use potion", player.x - 30, player.y - 20, 10)
+				    else
+				        print("press ❎ to use potion", player.x - 30, player.y - 20, 7)
+				    end
+				   
+			    
+			    if btnp(5) then
+            potion_used = true
+            nurses_frozen = true
+            
+        end
+       end
+       
+     end
+			
 
     camera()
     spr(60, 1, 1)
@@ -1268,14 +1293,14 @@ __gfx__
 000000003356653333333333611161116666666666666611611616111166666611616116550000550000000066666666ddddddddeeeeeeee8888888804444440
 000000003356653333333333666666661616111661111111611616161111116661616116657557560000000066666666ddddddddeeeeeeee8888888804444440
 000000003355553333333333611161111616111166111111666666661111116666666666665555660000000066666666ddddddddeeeeeeee8888888804444440
-4444444400000000b33b3b3b3338883344444444000000002200002244000044111666666666666666666111cccccccc77777777222222221111111104444440
-44444444000000003b33b3333388988344ffff4400ffff0020022002405555041161111111111111111116117777cccc77777777222222221111111104444040
-4444444400000000333333b3338999834ffffff40ffffff02022220205566550161111111111111111111161cccccccc77777777222222221111111104444040
-4444444400000000b3b3b3bb338898834f5ff5f40f5ff5f00222222005666650611116666666666666666116cccccccc77777777222222221111111104444440
-444444440000000033333333333888334ffffff40ffffff00222222005600650611161616116116116161611cccccccc77777777222222221111111104444440
-4444444400000000b3b3b33b3333b3334f5555f40ff555f00222222005600650611611616116116116161161cccc77cc77777777222222221111111104444440
-4444444400000000333b33333333bb334ffffff40ffffff00222222006000060611611616116116116161161cccccccc77777777222222221111111104444440
-4444444400000000b3b33b3b333bb33344cffc44007ff7000222222006600660611611616116116116161161cccccccc77777777222222221111111104444440
+4444444400000000b33b3b3b3338883344444444999999992200002244000044111666666666666666666111cccccccc77777777222222221111111104444440
+44444444000000003b33b3333388988344ffff4499ffff9920022002405555041161111111111111111116117777cccc77777777222222221111111104444040
+4444444400000000333333b3338999834ffffff49ffffff92022220205566550161111111111111111111161cccccccc77777777222222221111111104444040
+4444444400000000b3b3b3bb338898834f5ff5f49f5ff5f90222222005666650611116666666666666666116cccccccc77777777222222221111111104444440
+444444440000000033333333333888334ffffff49ffffff90222222005600650611161616116116116161611cccccccc77777777222222221111111104444440
+4444444400000000b3b3b33b3333b3334f5555f49ff555f90222222005600650611611616116116116161161cccc77cc77777777222222221111111104444440
+4444444400000000333b33333333bb334ffffff49ffffff90222222006000060611611616116116116161161cccccccc77777777222222221111111104444440
+4444444400000000b3b33b3b333bb33344cffc44997ff7990222222006600660611611616116116116161161cccccccc77777777222222221111111104444440
 333300000000333377777333dddddddddddddddddddddddd02222220066006600000000000800800000080000006600070000007000990006666666604444440
 3300555555550033b33733b3daaaaadd555555dddd555555022222200560065000777700007007000008880000667600770000777777777766ffff6604444440
 3066666666655503bbb3bbb3daeaead05555555555555555022222200560065007088070800000080088988000677600707777077ccc66676ffffff604444440
