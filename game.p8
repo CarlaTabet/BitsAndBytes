@@ -9,13 +9,15 @@ cameras = {}
 intro = true
 page = 1
 max_page = 5
+access_denied_timer = 0
+
 
 rooms = {
     --Name of room, x,y is top right corner and w,h is how big it is
     start = {x=91, y=43, w=16, h=12},
     graveyard = {x=0,y=0,w=36,h=36},
     room1 = {x=0,y=39,w=36,h=25},
-    room2 = {x=43, y=0, w=13, h=36},
+    room2 = {x=43, y=0, w=15, h=36},
     lab = {x=49, y=39, w=42, h=25},
 	storage_closet = {x=107, y= 39, w=21, h = 15}
 }
@@ -183,7 +185,7 @@ function load_cameras_from_map()
     
     if cameras_disabled then
         cameras = {}
-        return
+   					return
     end
     
     cameras = {}
@@ -456,10 +458,10 @@ function _init()
    -- add_door("lab", 49, 41, ",left")
     --add_door("storage_closet", 127, 43, "right")
     
-	load_cameras_from_map()    
-	load_button_from_map()					
-	spawn_blood_drop(25, 58)
-	load_flowers_from_map()
+				load_cameras_from_map()    
+				load_button_from_map()					
+				spawn_blood_drop(25, 58)
+				load_flowers_from_map()
     load_blood_drops_from_map()
     load_id_card_from_map()
     time_elapsed = 0
@@ -559,6 +561,9 @@ end
 
 
 function _update()
+				if access_denied_timer > 0 then
+				    access_denied_timer -= 1
+				end
     if intro then
         if btnp(4) then
             page +=1
@@ -715,12 +720,19 @@ function draw_signs()
     if current_room == "room2" then
         local sx = 47 * 8
         local sy = 32 * 8
+        
+        local px = player.x + 4
+        local py = player.y + 4
 
-        rectfill(sx - 4, sy - 12, sx + 70, sy+5, 5) -- brown background
-        rect(sx - 4, sy - 12, sx + 70, sy+5, 7) -- white border
-        print("<- storage closet", sx, sy - 10, 7)
-        print("laboratory ->", sx, sy - 2, 7)
-       
+								local dx = abs(px - (sx + 32))
+        local dy = abs(py - (sy + 4))
+
+        if dx < 30 and dy < 20 then
+	        rectfill(sx - 4, sy - 12, sx + 70, sy+5, 5) -- brown background
+	        rect(sx - 4, sy - 12, sx + 70, sy+5, 7) -- white border
+	        print("<- storage closet", sx, sy - 10, 7)
+	        print("laboratory ->", sx, sy - 2, 7)
+	       end
     end
 end
 
@@ -797,7 +809,6 @@ function _draw()
                 center("press z or x to start game", 45, 120, 5)
             end
         end
-
     else
 
 
@@ -856,9 +867,10 @@ function _draw()
 							   draw_riddle()
 								end
     end
+
     if current_room == "room2" then
-    	draw_camera_vision() 
     	draw_signs()
+    	draw_camera_vision() 
     end
     if current_room == "lab" and not potion_created then
 				  local tx = flr(player.x / 8)
@@ -914,6 +926,12 @@ function _draw()
 	    end
 		end
     end
+    if access_denied_timer > 0 then
+					rectfill(24, 102, 104, 126, 0) 
+					rect(24, 102, 104, 126, 8)
+					print("access not granted", 28, 110, 8)
+					print("need valid id", 40, 118, 8)
+				end
 end
 
 function draw_doors()
@@ -983,9 +1001,7 @@ function room_change()
     for exit in all(exits) do 
         if exit.room == current_room and exit.condition() then
             current_room = exit.dest
-            --if exit.dest == "lab" then
-			--	puzzle_active = false
-			--end
+        
             player.x = exit.px
             player.y = exit.py
             load_flowers_from_map()
@@ -994,8 +1010,14 @@ function room_change()
             load_cameras_from_map()
             load_button_from_map()
             return
-        end 
+        
+       elseif exit.room == "room1" and exit.dest == "room2" then
+          if player.x >= 274 and player.x <= 280 and player.y >= 379 and player.y <= 398 and not id_card_collected then
+            access_denied_timer = 10
+          end
+       end
     end
+    
 end
 
 function add_door(room, x, y, direction)
