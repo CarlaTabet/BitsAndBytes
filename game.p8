@@ -37,7 +37,7 @@ exits = {
         px=42, 
         py=316,
         condition = function()
-					    if player.x >= 160 and player.x <= 178 and (player.y == 274 or player.y == 275) then
+					    if player.x >= 160 and player.x <= 178 and (player.y == 276 or player.y == 274 or player.y == 275) then
 					        if puzzle_solved then
             			return true
 					        elseif not puzzle_active then
@@ -560,7 +560,7 @@ function _init()
             {105, 106, 121, 122},
             {107, 108, 123, 124}
         },
-        speed = 3
+        speed = 4
     }
 
     current_room = "start"
@@ -591,7 +591,7 @@ function _init()
     load_blood_drops_from_map()
     load_id_card_from_map()
     time_elapsed = 0
-    max_time = 300 * 60 -- 5 minutes
+    max_time = 1 * 60 -- 3 minutes
 end
 
 function update_doors()
@@ -741,10 +741,11 @@ function _update()
 
 				if puzzle_active then
 					update_puzzle()
-			end
+			else
 			 	player_update()
-			 	room_change()
-			
+			 
+			end
+				room_change()
 					
 				if game_over then
 				    if btnp(5) then
@@ -1117,8 +1118,16 @@ function _draw()
     if game_over then
 	    rectfill(20, 50, 108, 78, 0)
 	    rect(20, 50, 108, 78, 8)
-	    print("you were spotted!", 32, 58, 8)
-	    print("press ❎ to retry", 30, 66, 7)
+	   if time_elapsed >= max_time then
+        -- lost by time running out (sun came out)
+        print("the sun came out!", 30, 58, 8)
+        print("you lost!", 48, 66, 8)
+        print("press ❎ to retry", 32, 74, 7)
+    else
+        -- lost by being caught
+        print("you were spotted!", 32, 58, 8)
+        print("press ❎ to retry", 30, 66, 7)
+    end
 	end
 				
 		if button and not button.done then
@@ -1340,6 +1349,7 @@ function draw_time_bar()
         game_over = true
         music(-1)
         sfx(31)
+        return
     end
 end
 
