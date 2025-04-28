@@ -24,7 +24,7 @@ rooms = {
     room2 = {x=43, y=0, w=15, h=36},
     lab = {x=49, y=39, w=31, h=16},
 				storage_closet = {x=107, y= 39, w=21, h = 15},
-				bank = {x=67, y=0, w= 41, h=23}
+				bank = {x=67, y=0, w= 41, h=24}
 }
 
 exits = {
@@ -1037,7 +1037,7 @@ function _draw()
     if id_card_collected then
         spr(45, 1, 19)
     end
-    if potion and potion.collected then
+    if potion and potion.collected and not potion_used then
     	spr(103, 1, 28)
 				end
     draw_time_bar()
