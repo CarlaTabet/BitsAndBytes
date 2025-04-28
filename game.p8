@@ -68,7 +68,7 @@ exits = {
         px = 353,
         py = 45,
         condition = function()
-            return player.x == 49 and player.y == 25
+            return player.x == 46 and player.y == 34
         end
     },
     {
@@ -146,7 +146,7 @@ puzzle_active = false
 puzzle_solved = false
 lab_puzzle_active = false
 potion_created = false
-
+cameras_disabled = false
 
 function load_button_from_map()
     button = nil
@@ -180,6 +180,12 @@ function spawn_blood_drop(x, y)
 end
 
 function load_cameras_from_map()
+    
+    if cameras_disabled then
+        cameras = {}
+        return
+    end
+    
     cameras = {}
     local room = rooms[current_room]
     for ty = room.y, room.y + room.h - 1 do
@@ -419,6 +425,7 @@ function check_vision_cone_hit()
 end
 
 function _init()
+	cameras_disabled=false
 	id_card_collected = false
 	game_over = false
     message = ""
@@ -660,6 +667,7 @@ function _update()
     elseif button.pressed then
        if not button.cleared then
         cameras = {}
+        cameras_disabled = true
         button.cleared = true -- just to make sure it happens once
 			    end
 			
